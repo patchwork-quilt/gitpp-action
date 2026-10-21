@@ -1,0 +1,10 @@
+{
+  "effects": {
+    "env.oracle_disk_pct": 93
+  },
+  "id": "witness-1",
+  "kind": "witness",
+  "parents": [
+    "genesis"
+  ]
+}

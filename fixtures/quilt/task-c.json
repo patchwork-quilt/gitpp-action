@@ -1,0 +1,10 @@
+{
+  "effects": {
+    "feature.inherited": true
+  },
+  "id": "task-c",
+  "kind": "task",
+  "parents": [
+    "override-1"
+  ]
+}

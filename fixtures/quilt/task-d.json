@@ -1,0 +1,10 @@
+{
+  "effects": {
+    "config.timeout": 99
+  },
+  "id": "task-d",
+  "kind": "task",
+  "parents": [
+    "task-b"
+  ]
+}

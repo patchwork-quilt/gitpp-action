@@ -1,0 +1,12 @@
+{
+  "effects": {
+    "config.timeout": 45
+  },
+  "id": "override-1",
+  "kind": "override",
+  "parents": [
+    "task-a",
+    "task-b"
+  ],
+  "reason": "captain: 45 is the safe value"
+}

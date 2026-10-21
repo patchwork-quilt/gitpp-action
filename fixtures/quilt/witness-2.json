@@ -1,0 +1,10 @@
+{
+  "effects": {
+    "env.oracle_load1_x100": 17
+  },
+  "id": "witness-2",
+  "kind": "witness",
+  "parents": [
+    "override-1"
+  ]
+}

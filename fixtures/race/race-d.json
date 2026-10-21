@@ -1,0 +1,11 @@
+{
+  "effects": {
+    "config.timeout": 61,
+    "feature.delta": "on"
+  },
+  "id": "race-d",
+  "kind": "task",
+  "parents": [
+    "genesis"
+  ]
+}

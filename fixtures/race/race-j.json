@@ -1,0 +1,11 @@
+{
+  "effects": {
+    "config.timeout": 64,
+    "feature.kappa": "on"
+  },
+  "id": "race-j",
+  "kind": "task",
+  "parents": [
+    "genesis"
+  ]
+}

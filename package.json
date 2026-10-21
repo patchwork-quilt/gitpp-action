@@ -1,0 +1,1 @@
+{"description":"A GitHub Action that derives git.pp state from a directory of provenance records, inside your own CI.","license":"MIT","name":"gitpp-action","private":true,"scripts":{"demo:quilt":"bun run fold.mjs --records fixtures/quilt --project poc-quilt-1","demo:race":"bun run fold.mjs --records fixtures/race","test":"bun run test.mjs"},"version":"0.1.0"}

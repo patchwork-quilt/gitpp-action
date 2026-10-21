@@ -1,0 +1,9 @@
+{
+  "effects": {
+    "project": "poc-quilt-1",
+    "status": "open"
+  },
+  "id": "genesis",
+  "kind": "task",
+  "parents": []
+}

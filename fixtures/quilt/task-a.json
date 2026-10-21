@@ -1,0 +1,11 @@
+{
+  "effects": {
+    "config.timeout": 30,
+    "feature.cache": "on"
+  },
+  "id": "task-a",
+  "kind": "task",
+  "parents": [
+    "genesis"
+  ]
+}

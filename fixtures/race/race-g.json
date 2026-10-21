@@ -1,0 +1,11 @@
+{
+  "effects": {
+    "config.timeout": 33,
+    "feature.eta": "on"
+  },
+  "id": "race-g",
+  "kind": "task",
+  "parents": [
+    "genesis"
+  ]
+}

@@ -1,0 +1,11 @@
+{
+  "effects": {
+    "config.timeout": 60,
+    "feature.search": "on"
+  },
+  "id": "task-b",
+  "kind": "task",
+  "parents": [
+    "genesis"
+  ]
+}

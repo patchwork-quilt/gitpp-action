@@ -1,0 +1,11 @@
+{
+  "effects": {
+    "config.timeout": 63,
+    "feature.theta": "on"
+  },
+  "id": "race-h",
+  "kind": "task",
+  "parents": [
+    "genesis"
+  ]
+}

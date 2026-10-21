@@ -1,0 +1,47 @@
+name: "git.pp state"
+description: >-
+  Derive the git.pp state of a directory of provenance records inside your
+  own CI, and report winners, preserved losers, and conflicts as an advisory
+  summary (and, optionally, a neutral check run). No install, no external
+  service.
+author: "SuperInstance"
+branding:
+  icon: "git-pull-request"
+  color: "purple"
+
+inputs:
+  records-dir:
+    description: "Directory holding the git.pp record JSON files."
+    required: false
+    default: ".gitpp/records"
+  project:
+    description: "Project name shown in the report title."
+    required: false
+    default: ""
+  mode:
+    description: >-
+      summary — print the derivation and write the job summary.
+      check — additionally post a neutral "git.pp state" check run
+      (requires github-token). Advisory only: the check never fails a build.
+    required: false
+    default: "summary"
+  github-token:
+    description: >-
+      Token used only in mode=check to POST the check run
+      (checks: write). Ignored in summary mode.
+    required: false
+    default: ""
+
+runs:
+  using: "composite"
+  steps:
+    - name: Set up bun
+      uses: oven-sh/setup-bun@v2
+    - name: Derive git.pp state
+      shell: bash
+      run: >-
+        bun run "${{ github.action_path }}/fold.mjs"
+        --records "${{ inputs.records-dir }}"
+        --project "${{ inputs.project }}"
+        --mode "${{ inputs.mode }}"
+        --token "${{ inputs.github-token }}"

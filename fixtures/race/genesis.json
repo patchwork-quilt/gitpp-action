@@ -1,0 +1,9 @@
+{
+  "effects": {
+    "project": "demo-race-1",
+    "status": "open"
+  },
+  "id": "genesis",
+  "kind": "task",
+  "parents": []
+}

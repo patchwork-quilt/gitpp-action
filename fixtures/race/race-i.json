@@ -1,0 +1,11 @@
+{
+  "effects": {
+    "config.timeout": 34,
+    "feature.iota": "on"
+  },
+  "id": "race-i",
+  "kind": "task",
+  "parents": [
+    "genesis"
+  ]
+}
