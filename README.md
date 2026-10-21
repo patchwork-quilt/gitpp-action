@@ -10,7 +10,7 @@ Point it at a directory of git.pp record files (one JSON record per file). It de
 - every conflict: the winner, the **losers (preserved, never silently overwritten)**, and the ancestry that decided — class priority (override > task > witness), supersession, or the tie-break;
 - orphans (records whose ancestry is incomplete) excluded from state, named.
 
-Output goes to the log and to the job summary (`$GITHUB_STEP_SUMMARY`). In `check` mode it additionally posts a check run named **git.pp state** — always conclusion `neutral`. The action is advisory: it never fails your build.
+Output goes to the log and to the job summary (`$GITHUB_STEP_SUMMARY`) — that is the Action's native surface, and it needs no permissions beyond the workflow's own. In `check` mode it additionally posts a check run named **git.pp state** — always conclusion `neutral`. **Platform fact (verified against GitHub's Checks API docs, 2026-10-21): creating a check run requires a GitHub App token or a fine-grained PAT — the workflow's built-in `GITHUB_TOKEN` cannot do it.** So `check` mode needs `github-token` set to such a token with `checks: write`; with a plain `GITHUB_TOKEN` the API refuses and the action degrades to summary-only with a note in the log. (The full App — `gitpp-app`, sibling repo — is the surface that posts checks natively.) The action is advisory: it never fails your build.
 
 ## Usage
 
@@ -51,7 +51,7 @@ The record format and fold semantics are specified in [git.pp-ng](https://github
 | `records-dir` | `.gitpp/records` | Directory holding the record JSON files. Every `*.json` file is read; a file may hold one record or an array of records. |
 | `project` | *(empty)* | Project name shown in the report title. |
 | `mode` | `summary` | `summary`: print + job summary. `check`: additionally POST the neutral check run (needs `github-token`). |
-| `github-token` | *(empty)* | Token used only in `check` mode to create the check run (`checks: write`). Never used for anything else; the action makes no other network calls. |
+| `github-token` | *(empty)* | Used only in `check` mode, to create the check run. Must be a **GitHub App installation token or fine-grained PAT** with `checks: write` — the workflow `GITHUB_TOKEN` cannot create check runs (Checks API restriction). Never used for anything else; the action makes no other network calls. |
 
 ## Run it locally
 
