@@ -29,6 +29,10 @@ function runFold(args, env = {}) {
 // --- quilt: config.timeout = 45 via override-1 -------------------------
 const quilt = runFold(["--records", "fixtures/quilt", "--project", "poc-quilt-1"]);
 check("quilt: title names the project", quilt.includes("# git.pp state — poc-quilt-1"));
+check("quilt: advisory line directly under the title",
+  quilt.includes("# git.pp state — poc-quilt-1\n> Advisory — a mechanical derivation under the fold's rules, not an approval. A winner means precedence, not correctness or authorisation. This report never gates a merge."));
+check("quilt: outranked lines use kind vocabulary, never class",
+  quilt.includes("(kind priority is absolute)") && !quilt.includes("class"));
 check("quilt: config.timeout = 45", quilt.includes("`config.timeout` = 45"));
 check("quilt: winner is override-1", quilt.includes("winner `override-1` (override"));
 check("quilt: winner reason quoted", quilt.includes("captain: 45 is the safe value"));
@@ -48,6 +52,8 @@ check("race: winner is race-a", race.includes("winner `race-a` (task"));
 const loserCount = (race.match(/  - loser `race-/g) ?? []).length;
 check(`race: exactly 9 losers preserved (got ${loserCount})`, loserCount === 9);
 check("race: tie-break explanation present", race.includes("lost the tie-break"));
+check("race: tie-break line states the metric with both candidates' counts",
+  race.includes("lost the tie-break among incomparable candidates of the same kind (intent ancestors 1 vs winner's 1, witness ancestors 0 vs winner's 0 — most intent ancestors wins, then fewest witness ancestors, then smallest id)"));
 
 // --- step summary is written when GITHUB_STEP_SUMMARY is set ------------
 const dir = mkdtempSync(join(tmpdir(), "gitpp-action-"));
