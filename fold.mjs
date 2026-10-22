@@ -29,7 +29,13 @@ export const QUALIFICATIONS =
   "not settle semantic conflicts. Digests authenticate content, not " +
   "authorship. Arrival order is never an input.";
 
-const CLASS_RANK = { override: 0, task: 1, witness: 2 };
+const KIND_RANK = { override: 0, task: 1, witness: 2 };
+const WITNESS_RANK = 2;
+
+export const ADVISORY =
+  "> Advisory — a mechanical derivation under the fold's rules, not an " +
+  "approval. A winner means precedence, not correctness or " +
+  "authorisation. This report never gates a merge.";
 
 export function loadRecords(dir) {
   let names;
@@ -61,32 +67,73 @@ function kindOf(rec) {
   return typeof rec?.kind === "string" ? rec.kind : "witness";
 }
 
+function rankOf(rec) {
+  return KIND_RANK[kindOf(rec)] ?? WITNESS_RANK;
+}
+
+/** Strict (transitive) ancestor ids of a record, from the records at hand:
+ * parents followed transitively, exactly the ancestry the engine derives
+ * over. Ids with no record contribute nothing; the memo is published
+ * before recursing so a malformed cycle terminates instead of looping. */
+function ancestorIds(id, byId, memo) {
+  if (memo.has(id)) return memo.get(id);
+  const out = new Set();
+  memo.set(id, out);
+  for (const p of byId.get(id)?.parents ?? []) {
+    if (!byId.has(p)) continue;
+    out.add(p);
+    for (const a of ancestorIds(p, byId, memo)) out.add(a);
+  }
+  return out;
+}
+
+/** The engine's tie-break counts for one candidate (lib/fold.ts derive):
+ * how many of its strict ancestors carry intent (kind task or override)
+ * and how many are witnesses. The tie-break prefers the most intent
+ * ancestors, then the fewest witness ancestors, then the smallest id. */
+function tieBreakCounts(id, byId, memo) {
+  let intent = 0;
+  let witness = 0;
+  for (const a of ancestorIds(id, byId, memo)) {
+    if (rankOf(byId.get(a)) < WITNESS_RANK) intent += 1;
+    else witness += 1;
+  }
+  return { intent, witness };
+}
+
 /** Human explanation of one conflict, from the records themselves. */
 export function explainConflict(conflict, byId) {
   const winner = byId.get(conflict.winner);
-  const wClass = kindOf(winner);
+  const wKind = kindOf(winner);
+  const memo = new Map();
+  const winnerAnc = ancestorIds(conflict.winner, byId, memo);
   const lines = [];
   lines.push(
     `- **${conflict.key}** = ${fmtValue(winner?.effects?.[conflict.key])} ` +
-      `— winner \`${conflict.winner}\` (${wClass}` +
+      `— winner \`${conflict.winner}\` (${wKind}` +
       (winner?.reason ? `, reason: "${winner.reason}"` : "") +
       `, parents: [${(winner?.parents ?? []).join(", ")}])`,
   );
   for (const loserId of conflict.losers) {
     const loser = byId.get(loserId);
-    const lClass = kindOf(loser);
+    const lKind = kindOf(loser);
     let why;
-    if ((CLASS_RANK[wClass] ?? 2) < (CLASS_RANK[lClass] ?? 2)) {
-      why = `outranked — ${wClass} beats ${lClass} (class priority is absolute)`;
-    } else if ((winner?.parents ?? []).includes(loserId)) {
+    if (rankOf(winner) < rankOf(loser)) {
+      why = `outranked — ${wKind} beats ${lKind} (kind priority is absolute)`;
+    } else if (winnerAnc.has(loserId)) {
       why = "superseded — the winner descends from it";
     } else {
+      const lc = tieBreakCounts(loserId, byId, memo);
+      const wc = tieBreakCounts(conflict.winner, byId, memo);
       why =
         "lost the tie-break among incomparable candidates of the same " +
-        "class (cleanest ancestry chain, then smallest id)";
+        `kind (intent ancestors ${lc.intent} vs winner's ${wc.intent}, ` +
+        `witness ancestors ${lc.witness} vs winner's ${wc.witness} — ` +
+        "most intent ancestors wins, then fewest witness ancestors, " +
+        "then smallest id)";
     }
     lines.push(
-      `  - loser \`${loserId}\` (${lClass}) set ${fmtValue(loser?.effects?.[conflict.key])} — ${why}; preserved in the record`,
+      `  - loser \`${loserId}\` (${lKind}) set ${fmtValue(loser?.effects?.[conflict.key])} — ${why}; preserved in the record`,
     );
   }
   return lines;
@@ -98,6 +145,7 @@ export function renderReport(records, project) {
   const title = project ? `git.pp state — ${project}` : "git.pp state";
   const lines = [];
   lines.push(`# ${title}`);
+  lines.push(ADVISORY);
   lines.push("");
   lines.push(
     `${records.length} records · ${Object.keys(out.state).length} keys · ` +

@@ -16,6 +16,7 @@ Eight records go in; the derived state comes out:
 
 ```text
 # git.pp state — poc-quilt-1
+> Advisory — a mechanical derivation under the fold's rules, not an approval. A winner means precedence, not correctness or authorisation. This report never gates a merge.
 
 8 records · 8 keys · 1 conflict(s) · 0 orphan(s)
 
@@ -29,9 +30,9 @@ Eight records go in; the derived state comes out:
 ## Conflicts (losers preserved)
 
 - **config.timeout** = 45 — winner `override-1` (override, reason: "captain: 45 is the safe value", parents: [task-a, task-b])
-  - loser `task-a` (task) set 30 — outranked — override beats task (class priority is absolute); preserved in the record
-  - loser `task-b` (task) set 60 — outranked — override beats task (class priority is absolute); preserved in the record
-  - loser `task-d` (task) set 99 — outranked — override beats task (class priority is absolute); preserved in the record
+  - loser `task-a` (task) set 30 — outranked — override beats task (kind priority is absolute); preserved in the record
+  - loser `task-b` (task) set 60 — outranked — override beats task (kind priority is absolute); preserved in the record
+  - loser `task-d` (task) set 99 — outranked — override beats task (kind priority is absolute); preserved in the record
 
 > Mechanical resolution of labelled key conflicts only; the fold does not settle semantic conflicts. Digests authenticate content, not authorship. Arrival order is never an input.
 ```
@@ -72,8 +73,8 @@ Five concepts, in the order they compose:
   }
   ```
 
-- **Kind is authority.** `override` > `task` > `witness`, and the priority is absolute: a higher class wins a key against any number of lower-class records, whatever the ancestry. A witness *saw* a value; it did not decide it — a witness never outranks a task, even when the witness descends from it.
-- **Ancestry** — the parent graph. Within the highest class competing for a key, ancestry decides: a record supersedes the ancestors it descends from. Records whose ancestry is incomplete (a parent is missing) are **orphans**: excluded from state, and named in the report.
+- **Kind is authority.** `override` > `task` > `witness`, and the priority is absolute: a higher kind wins a key against any number of lower-kind records, whatever the ancestry. A witness *saw* a value; it did not decide it — a witness never outranks a task, even when the witness descends from it.
+- **Ancestry** — the parent graph. Within the highest kind competing for a key, ancestry decides: a record supersedes the ancestors it descends from. Records whose ancestry is incomplete (a parent is missing) are **orphans**: excluded from state, and named in the report.
 - **Effects** — the labelled keys a record sets. Only keys are resolved; the fold has no opinion about what a value *means*.
 - **The fold** — the pure function from a set of records to `{state, conflicts, orphans}`. Same set in, same answer out, in any order (this is load-bearing; see the deep layer).
 
@@ -132,14 +133,14 @@ Two fixtures ship in `fixtures/`: `quilt` (above) and `race` — eleven records 
 
 Four things a senior reader should take away, each with its receipt.
 
-**Arrival order is never an input — and that's the whole design.** Derivation is a pure function of the record *set*. Concurrency-safe resolution usually smuggles in a timestamp or a sequence number and calls the result deterministic; here there is nothing to smuggle — class, ancestry, and id are all the fold may use. Receipt you can run: pack the eight quilt records into a single file as an array, reversed, and the output is byte-identical:
+**Arrival order is never an input — and that's the whole design.** Derivation is a pure function of the record *set*. Concurrency-safe resolution usually smuggles in a timestamp or a sequence number and calls the result deterministic; here there is nothing to smuggle — kind, ancestry, and id are all the fold may use. Receipt you can run: pack the eight quilt records into a single file as an array, reversed, and the output is byte-identical:
 
 ```bash
 # (any reordering of the same set — this was verified with the reversed array)
 bun run fold.mjs --records <your-shuffled-dir> --project poc-quilt-1
 ```
 
-**Seeing is not deciding.** The class rule that surprises people is the witness rule: a witness that *descends from* a task still loses to it. Observation records (heartbeats, environment readings — `witness-1`/`witness-2` in the quilt fixture) can carry keys nobody contests, but the moment a task contests the key, the witness's later, better-informed value loses. Provenance of *intent* outranks recency of *observation*, by design, because the failure mode it prevents — a monitor silently overriding a decision — is the one that pages you at 3 a.m. The rule is stated in the engine's own header (`lib/fold.ts`) and exercised by the quilt fixture's class-priority conflict.
+**Seeing is not deciding.** The kind rule that surprises people is the witness rule: a witness that *descends from* a task still loses to it. Observation records (heartbeats, environment readings — `witness-1`/`witness-2` in the quilt fixture) can carry keys nobody contests, but the moment a task contests the key, the witness's later, better-informed value loses. Provenance of *intent* outranks recency of *observation*, by design, because the failure mode it prevents — a monitor silently overriding a decision — is the one that pages you at 3 a.m. The rule is stated in the engine's own header (`lib/fold.ts`) and exercised by the quilt fixture's kind-priority conflict.
 
 **The engine is not a reimplementation.** `lib/fold.ts` is vendored **byte-identical** below its provenance header from git.pp-ng `src/fold.ts` at commit `c130862b354f8895e68a4a0d8349f27389e570e3` — verifiable by diffing the file below the header against that upstream path. That matters because the upstream engine is held identical to a Python referee (and an independent BEAM port) by a conformance corpus: at the vendored commit, upstream's `RESULTS.md` records 863/863 cases identical across ports and 16,290 closure-root digests matching — so the semantics this action runs in your CI are the semantics three implementations agree on, not a port's opinion. Fixes belong upstream; this copy is refreshed by re-vendoring from a named commit, never edited locally.
 
