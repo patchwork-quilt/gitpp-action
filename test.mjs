@@ -46,7 +46,7 @@ check("quilt: qualifications printed",
   quilt.includes("Digests authenticate content, not authorship"));
 
 // --- rule-order line: present, directly under the advisory ---------------
-const RULE_ORDER_LINE = "> How a winner is chosen: kind first (override beats task beats witness); within a kind, a record that descends from a rival supersedes it; any remaining tie breaks on ancestry — most non-witness ancestors, then fewest witness ancestors — then smallest id. A record's reason is its author's note, never an input to the fold.";
+const RULE_ORDER_LINE = "> How a winner is chosen: kind first (override beats task beats witness); within a kind, a record that descends from a rival supersedes it; any remaining tie breaks on ancestry — ancestors are all transitive ancestors, counted once each, excluding the record itself: most intent ancestors (task and override records) wins, then fewest witness ancestors, then smallest id. A record's reason is its author's note, never an input to the fold.";
 check("quilt: rule-order line present", quilt.includes(RULE_ORDER_LINE));
 check("quilt: rule-order line directly under the advisory",
   quilt.includes("This report never gates a merge.\n" + RULE_ORDER_LINE));
