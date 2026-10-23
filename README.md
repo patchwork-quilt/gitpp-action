@@ -128,7 +128,7 @@ Two fixtures ship in `fixtures/`: `quilt` (above) and `race` — eleven records 
 - **Mechanical resolution of labelled key conflicts only.** The fold does not settle semantic conflicts. If two records set the same key to different values, it picks a winner by rule and explains itself — it does not know which value is *right*.
 - **Digests authenticate content, not authorship.** A record says what it says; who really wrote it is your platform's question, not the fold's.
 - **Advisory, by doctrine.** The check run's conclusion is `neutral`, hardcoded in `fold.mjs` — the action cannot fail your build over a state conflict. Making it a required gate is your call, to take later, with your own evidence. One precision: "never gates" is this tool's stance, not a platform limit — a repository admin can name the `git.pp state` check in branch protection and make it required. That is the admin's policy choice, and if they make it, a records surface the fold cannot read fails the run rather than passing silently.
-- **Status: built and working** (v0.1.0). The wrapper is deliberately thin; everything semantic lives upstream in the spec repo.
+- **Status: built and working** (v0.3). The wrapper is deliberately thin; everything semantic lives upstream in the spec repo.
 
 ## The deep layer
 
@@ -153,7 +153,7 @@ bun run fold.mjs --records <your-shuffled-dir> --project poc-quilt-1
 bun run test.mjs
 ```
 
-15 assertions over both fixtures, the step-summary write, and the check-mode degradation path — expected final line:
+23 assertions over both fixtures, the commit-scope line, the step-summary write, and the check-mode degradation path — expected final line:
 
 ```text
 ALL TESTS PASS
