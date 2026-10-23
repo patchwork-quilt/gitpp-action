@@ -38,12 +38,7 @@ export const ADVISORY =
   "authorisation. This report never gates a merge.";
 
 export const RULE_ORDER =
-  "> How a winner is chosen: kind first (override beats task " +
-  "beats witness); within a kind, a record that descends from a " +
-  "rival supersedes it; any remaining tie breaks on ancestry — " +
-  "most non-witness ancestors, then fewest witness ancestors — " +
-  "then smallest id. A record's reason is its author's note, " +
-  "never an input to the fold.";
+  "> How a winner is chosen: kind first (override beats task beats witness); within a kind, a record that descends from a rival supersedes it; any remaining tie breaks on ancestry — ancestors are all transitive ancestors, counted once each, excluding the record itself: most intent ancestors (task and override records) wins, then fewest witness ancestors, then smallest id. A record's reason is its author's note, never an input to the fold.";
 
 export function loadRecords(dir) {
   let names;

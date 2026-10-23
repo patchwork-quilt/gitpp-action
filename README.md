@@ -17,7 +17,7 @@ Eight records go in; the derived state comes out:
 ```text
 # git.pp state — poc-quilt-1
 > Advisory — a mechanical derivation under the fold's rules, not an approval. A winner means precedence, not correctness or authorisation. This report never gates a merge.
-> How a winner is chosen: kind first (override beats task beats witness); within a kind, a record that descends from a rival supersedes it; any remaining tie breaks on ancestry — most non-witness ancestors, then fewest witness ancestors — then smallest id. A record's reason is its author's note, never an input to the fold.
+> How a winner is chosen: kind first (override beats task beats witness); within a kind, a record that descends from a rival supersedes it; any remaining tie breaks on ancestry — ancestors are all transitive ancestors, counted once each, excluding the record itself: most intent ancestors (task and override records) wins, then fewest witness ancestors, then smallest id. A record's reason is its author's note, never an input to the fold.
 
 8 records · 8 keys · 1 conflict(s) · 0 orphan(s)
 
