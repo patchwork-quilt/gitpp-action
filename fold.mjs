@@ -37,6 +37,14 @@ export const ADVISORY =
   "approval. A winner means precedence, not correctness or " +
   "authorisation. This report never gates a merge.";
 
+export const RULE_ORDER =
+  "> How a winner is chosen: kind first (override beats task " +
+  "beats witness); within a kind, a record that descends from a " +
+  "rival supersedes it; any remaining tie breaks on ancestry — " +
+  "most non-witness ancestors, then fewest witness ancestors — " +
+  "then smallest id. A record's reason is its author's note, " +
+  "never an input to the fold.";
+
 export function loadRecords(dir) {
   let names;
   try {
@@ -146,11 +154,13 @@ export function renderReport(records, project) {
   const lines = [];
   lines.push(`# ${title}`);
   lines.push(ADVISORY);
+  lines.push(RULE_ORDER);
   lines.push("");
-  lines.push(
+  const counts =
     `${records.length} records · ${Object.keys(out.state).length} keys · ` +
-      `${out.conflicts.length} conflict(s) · ${out.orphans.length} orphan(s)`,
-  );
+    `${out.conflicts.length} conflict(s) · ${out.orphans.length} orphan(s)`;
+  const sha = process.env.GITHUB_SHA ?? "";
+  lines.push(sha ? `Commit \`${sha.slice(0, 7)}\` · ${counts}` : counts);
   lines.push("");
   lines.push("## State");
   lines.push("");

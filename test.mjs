@@ -45,6 +45,20 @@ check("quilt: qualifications printed",
   quilt.includes("Arrival order is never an input") &&
   quilt.includes("Digests authenticate content, not authorship"));
 
+// --- rule-order line: present, directly under the advisory ---------------
+const RULE_ORDER_LINE = "> How a winner is chosen: kind first (override beats task beats witness); within a kind, a record that descends from a rival supersedes it; any remaining tie breaks on ancestry — most non-witness ancestors, then fewest witness ancestors — then smallest id. A record's reason is its author's note, never an input to the fold.";
+check("quilt: rule-order line present", quilt.includes(RULE_ORDER_LINE));
+check("quilt: rule-order line directly under the advisory",
+  quilt.includes("This report never gates a merge.\n" + RULE_ORDER_LINE));
+
+// --- commit scope parity: GITHUB_SHA prefixes the counts line ------------
+const scoped = runFold(["--records", "fixtures/quilt", "--project", "poc-quilt-1"],
+  { GITHUB_SHA: "1234567890abcdef" });
+check("scope: counts line prefixed with Commit `<sha7>` when GITHUB_SHA is set",
+  scoped.includes("Commit `1234567` · 8 records · 8 keys · 1 conflict(s) · 0 orphan(s)"));
+check("scope: no Commit prefix when GITHUB_SHA is unset",
+  !quilt.includes("Commit `"));
+
 // --- race: race-a wins the tie-break at 30, 9 losers --------------------
 const race = runFold(["--records", "fixtures/race"]);
 check("race: config.timeout = 30", race.includes("`config.timeout` = 30"));
@@ -52,6 +66,7 @@ check("race: winner is race-a", race.includes("winner `race-a` (task"));
 const loserCount = (race.match(/  - loser `race-/g) ?? []).length;
 check(`race: exactly 9 losers preserved (got ${loserCount})`, loserCount === 9);
 check("race: tie-break explanation present", race.includes("lost the tie-break"));
+check("race: rule-order line present", race.includes(RULE_ORDER_LINE));
 check("race: tie-break line states the metric with both candidates' counts",
   race.includes("lost the tie-break among incomparable candidates of the same kind (intent ancestors 1 vs winner's 1, witness ancestors 0 vs winner's 0 — most intent ancestors wins, then fewest witness ancestors, then smallest id)"));
 
