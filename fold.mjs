@@ -27,7 +27,8 @@ import { derive } from "./lib/fold.ts";
 export const QUALIFICATIONS =
   "Mechanical resolution of labelled key conflicts only; the fold does " +
   "not settle semantic conflicts. Digests authenticate content, not " +
-  "authorship. Arrival order is never an input.";
+  "authorship. Arrival order is never an input. " +
+  "An orphan is a record whose parent is missing or did not itself derive.";
 
 const KIND_RANK = { override: 0, task: 1, witness: 2 };
 const WITNESS_RANK = 2;
