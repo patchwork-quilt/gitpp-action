@@ -11,6 +11,7 @@ import { spawnSync } from "node:child_process";
 import { mkdtempSync, readFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
+import { fitCheckText, renderReport } from "./fold.mjs";
 
 let failures = 0;
 function check(label, cond) {
@@ -89,6 +90,35 @@ const checkRun = spawnSync(
 check("check mode without repo/sha still prints and exits 0",
   checkRun.status === 0 && checkRun.stdout.includes("`config.timeout` = 45") &&
   checkRun.stderr.includes("no check run posted"));
+
+// --- check text fits GitHub's BYTE cap, qualifications survive ----------
+// GitHub stores 65,536 bytes and amputates silently (gitpp-app issue
+// #17). The old slice(0, 65535) cut characters: a CJK-heavy report
+// overflowed in bytes and lost its tail. fitCheckText budgets bytes.
+{
+  const byteLen = (s) => new TextEncoder().encode(s).length;
+  check("fit: a small report is returned unchanged", fitCheckText(quilt) === quilt);
+  const recs = [
+    { id: "genesis", kind: "witness", parents: [], effects: { project: "byte-probe" } },
+  ];
+  for (let i = 0; i < 800; i++) {
+    recs.push({
+      id: `t${i}`,
+      kind: "task",
+      parents: ["genesis"],
+      effects: { [`key-${i}`]: "値".repeat(30) },
+    });
+  }
+  const big = renderReport(recs, "byte-probe").text;
+  check("fit: the fixture genuinely overflows in bytes", byteLen(big) > 65536);
+  const fitted = fitCheckText(big);
+  check(`fit: fitted text within 65,000 bytes (got ${byteLen(fitted)})`,
+    byteLen(fitted) <= 65000);
+  check("fit: truncation is marked",
+    fitted.includes("entries truncated in this view"));
+  check("fit: the full qualifications line closes the fitted text",
+    fitted.trimEnd().endsWith("did not itself derive."));
+}
 
 console.log(failures === 0 ? "\nALL TESTS PASS" : `\n${failures} FAILURE(S)`);
 process.exit(failures === 0 ? 0 : 1);

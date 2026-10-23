@@ -180,6 +180,36 @@ export function renderReport(records, project) {
   return { text: lines.join("\n") + "\n", out };
 }
 
+/** Fit report text to GitHub's check-run cap, counted in UTF-8
+ * BYTES: GitHub stores 65,536 bytes and amputates the overflow
+ * silently, mid-line (gitpp-app issue #17, measured in SCALE-1).
+ * The old `text.slice(0, 65535)` cut by CHARACTERS — a multibyte
+ * report could still overflow in bytes, and any cut lost the
+ * qualifications blockquote the report is designed to end with.
+ * Working limit 65,000 bytes, matching the App. Text that fits is
+ * returned unchanged; text that does not is cut at a line boundary,
+ * marked, and re-closed with the full qualifications line. */
+const CHECK_TEXT_LIMIT = 65000;
+const textBytes = (s) => new TextEncoder().encode(s).length;
+export function fitCheckText(text, limit = CHECK_TEXT_LIMIT) {
+  if (textBytes(text) <= limit) return text;
+  const qLine = text.trimEnd().split("\n").at(-1) ?? "";
+  const marker =
+    "… entries truncated in this view; the derivation itself is complete";
+  const tail = `\n${marker}\n\n${qLine}\n`;
+  const reserve = textBytes(tail);
+  const kept = [];
+  let used = 0;
+  for (const line of text.split("\n")) {
+    if (line === qLine) continue; // re-attached at the end
+    const cost = textBytes(line) + 1;
+    if (used + cost + reserve > limit) break;
+    kept.push(line);
+    used += cost;
+  }
+  return kept.join("\n") + tail;
+}
+
 export async function postCheckRun({ token, repo, sha, title, summary, text }) {
   const res = await fetch(`https://api.github.com/repos/${repo}/check-runs`, {
     method: "POST",
@@ -194,7 +224,7 @@ export async function postCheckRun({ token, repo, sha, title, summary, text }) {
       head_sha: sha,
       status: "completed",
       conclusion: "neutral",
-      output: { title, summary, text: text.slice(0, 65535) },
+      output: { title, summary, text: fitCheckText(text) },
     }),
   });
   if (!res.ok) {
