@@ -168,7 +168,7 @@ One tool, one repo — the shelf:
 - [git.pp-ng](https://github.com/patchwork-quilt/git.pp-ng) — the specification, the fold engine, and the conformance corpus this action vendors. Go there for the semantics, the checkpoint format, and the measured results ledger.
 - [gitpp-app](https://github.com/patchwork-quilt/gitpp-app) — the GitHub App: the same fold, posting real Check runs natively with an App token, fed by webhooks instead of your CI. Want this when the summary surface isn't enough.
 - [gitpp-beam](https://github.com/patchwork-quilt/gitpp-beam) — the same fold ported to Elixir/BEAM from the spec alone; the second-implementation proof.
-- [outbound-scanner](https://github.com/patchwork-quilt/outbound-scanner) — a pre-send egress scanner for agent harnesses: catches session secrets in outbound replies before they ship. A different tool for a different leak; the sibling example of the one-tool-one-repo rule.
+- [outbound-scanner](https://github.com/SuperInstance/outbound-scanner) — a pre-send egress scanner for agent harnesses: catches session secrets in outbound replies before they ship. A different tool for a different leak; the sibling example of the one-tool-one-repo rule.
 
 ## Licence
 
