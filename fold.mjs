@@ -22,7 +22,7 @@
  */
 import { readdirSync, readFileSync, appendFileSync } from "node:fs";
 import { join } from "node:path";
-import { derive } from "./lib/fold.ts";
+import { derive, retractionStatus } from "./lib/fold.ts";
 
 export const QUALIFICATIONS =
   "Mechanical resolution of labelled key conflicts only; the fold does " +
@@ -174,6 +174,57 @@ export function renderReport(records, project) {
     lines.push("## Orphans (excluded from state)");
     lines.push("");
     lines.push(out.orphans.map((o) => `- \`${o}\``).join("\n"));
+  }
+  // Retractions (fold law, git.pp-ng v0.2.0): every claim in this section
+  // is one the records prove — the retracted set and the contested
+  // markings come from the engine's retraction surface; the dispute
+  // named on a plain line is read off the records themselves. A
+  // retraction the target's author neither filed nor settled is marked
+  // CONTESTED, with provenance — never a silent void (Casey's ruling,
+  // 2026-11-02: say only what the records can back up).
+  const ret = retractionStatus(records);
+  const openDisputes = Object.entries(ret.disputes)
+    .filter(([, s]) => s === "open");
+  if (ret.retracted.length > 0 || openDisputes.length > 0) {
+    lines.push("");
+    lines.push("## Retractions");
+    lines.push("");
+    const contestedByPair = new Map(
+      ret.contested.map((c) => [`${c.record}\n${c.dispute}`, c]),
+    );
+    for (const rid of ret.retracted) {
+      const upheld = records.filter(
+        (r) => kindOf(r) === "dispute" && String(r.target) === rid &&
+          ret.disputes[String(r.id)] === "upheld",
+      );
+      for (const d of upheld) {
+        const c = contestedByPair.get(`${rid}\n${String(d.id)}`);
+        if (c) {
+          lines.push(
+            `- \`${rid}\` — retracted: effects voided by upheld dispute ` +
+            `\`${c.dispute}\` (settlement \`${c.settlement}\`) — ` +
+            `**contested**: disputed by ` +
+            (c.disputed_by
+              ? `\`${c.disputed_by}\``
+              : "an author the dispute does not name") +
+            `, settled by \`${c.settled_by}\`; the author of \`${rid}\` ` +
+            `neither filed nor settled it`,
+          );
+        } else {
+          lines.push(
+            `- \`${rid}\` — retracted: effects voided by upheld dispute ` +
+            `\`${String(d.id)}\``,
+          );
+        }
+      }
+    }
+    for (const [did] of openDisputes) {
+      const d = byId.get(did);
+      lines.push(
+        `- \`${did}\` — dispute against \`${String(d?.target)}\` is open ` +
+        `(unsettled): no effect on the state above`,
+      );
+    }
   }
   lines.push("");
   lines.push(`> ${QUALIFICATIONS}`);

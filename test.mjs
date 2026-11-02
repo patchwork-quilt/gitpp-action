@@ -120,5 +120,49 @@ check("check mode without repo/sha still prints and exits 0",
     fitted.trimEnd().endsWith("did not itself derive."));
 }
 
+// --- retraction: contested marking, plain retraction, open dispute -----
+// Fold law (git.pp-ng v0.2.0; Casey ruling 2026-11-02): a captain-ratified
+// third-party accusation retracts its target and is marked CONTESTED with
+// provenance; the author's own settlement retracts without the mark; an
+// open dispute changes nothing and is reported as having no effect.
+{
+  const base = [
+    { id: "g", kind: "task", parents: [], author: "amy", effects: { k: 0 } },
+    { id: "c", kind: "task", parents: ["g"], author: "amy", effects: { x: "bad", k: 5 } },
+    { id: "e", kind: "task", parents: ["c"], author: "bob", effects: { k: "e-val" } },
+    { id: "d", kind: "task", parents: ["g"], author: "bob", effects: { k: "d-val" } },
+    { id: "ov", kind: "override", parents: ["g"], author: "cap", effects: { z: 1 }, reason: "standing order" },
+  ];
+  const dsp = { id: "dsp", kind: "dispute", parents: ["c"], author: "mallory", target: "c", reason: "filed in error", effects: {} };
+
+  const contested = renderReport([...base, dsp,
+    { id: "stl", kind: "settlement", parents: ["dsp"], author: "cap", dispute: "dsp", resolution: "upheld", effects: {} },
+  ], "retract-probe").text;
+  check("retraction: section present", contested.includes("## Retractions"));
+  check("retraction: retracted record's key flips to the standing rival",
+    contested.includes("`k` = d-val"));
+  check("retraction: retracted record's own key leaves the state",
+    !contested.includes("- `x` ="));
+  check("retraction: ratified accusation marked contested with provenance",
+    contested.includes("**contested**: disputed by `mallory`, settled by `cap`"));
+  check("retraction: contested line names dispute and settlement",
+    contested.includes("dispute `dsp` (settlement `stl`)"));
+
+  const ownAct = renderReport([...base,
+    { ...dsp, author: "bob" },
+    { id: "stl", kind: "settlement", parents: ["dsp"], author: "amy", dispute: "dsp", resolution: "upheld", effects: {} },
+  ], "retract-probe").text;
+  check("retraction: author's own settlement still retracts",
+    ownAct.includes("`k` = d-val") && ownAct.includes("## Retractions"));
+  check("retraction: author's own settlement is NOT marked contested",
+    !ownAct.includes("contested"));
+
+  const open = renderReport([...base, dsp], "retract-probe").text;
+  check("retraction: open dispute leaves the state untouched",
+    open.includes("`k` = e-val") && open.includes("- `x` = bad"));
+  check("retraction: open dispute reported as having no effect",
+    open.includes("dispute against `c` is open (unsettled): no effect"));
+}
+
 console.log(failures === 0 ? "\nALL TESTS PASS" : `\n${failures} FAILURE(S)`);
 process.exit(failures === 0 ? 0 : 1);

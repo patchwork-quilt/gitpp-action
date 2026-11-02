@@ -4,6 +4,24 @@ All notable changes to gitpp-action. Versions follow the git tag lineage;
 release dates are the tag dates. The fold engine itself is vendored from
 git.pp-ng — engine changes are credited to the upstream fix they carry.
 
+## [0.4.0] — 2026-11-02
+
+The fold gains retraction (git.pp-ng v0.2.0, Casey ruling 2026-11-02).
+
+- Engine re-vendored byte-identical from git.pp-ng `src/fold.ts` at
+  `c37ed879` (v0.2.0): dispute + settlement records are fold law — an
+  authoritative settlement upholding a dispute voids the target
+  record's effects; unattributed record sets are dispute-inert, so
+  existing projects fold exactly as before.
+- The report gains a **Retractions** section: retracted records are
+  named with the upheld dispute that voided them; a ratified accusation
+  the record's author neither filed nor settled is marked **contested**,
+  with the dispute/settlement provenance; open disputes are listed as
+  having no effect on the state.
+- Tests: 38 assertions (was 29) — the new ones pin the contested
+  marking, the unmarked self-retraction, and the inert open dispute.
+- Floating tags maintained: `v0` and `v0.4` point at this release.
+
 ## [0.3.2] — 2026-11-02
 
 Documentation and release hygiene only; the action's behaviour is
