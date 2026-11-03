@@ -1,9 +1,6 @@
 name: "git.pp state"
 description: >-
-  Derive the git.pp state of a directory of provenance records inside your
-  own CI, and report winners, preserved losers, and conflicts as an advisory
-  summary (and, optionally, a neutral check run). No install, no external
-  service.
+  Derive git.pp state from a directory of provenance records in your own CI: winners, preserved losers, deciding rule.
 author: "SuperInstance"
 branding:
   icon: "git-pull-request"

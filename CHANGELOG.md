@@ -4,6 +4,10 @@ All notable changes to gitpp-action. Versions follow the git tag lineage;
 release dates are the tag dates. The fold engine itself is vendored from
 git.pp-ng — engine changes are credited to the upstream fix they carry.
 
+## 0.4.1 - 2026-11-02
+
+- action.yml description shortened to 116 characters to meet the GitHub Marketplace limit for Actions (under 125). No engine change: the vendored fold remains byte-identical to git.pp-ng v0.2.0.
+
 ## [0.4.0] — 2026-11-02
 
 The fold gains retraction (git.pp-ng v0.2.0, Casey ruling 2026-11-02).
